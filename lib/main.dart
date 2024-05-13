@@ -21,7 +21,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Emirhan Eren',
+      title: 'Emirhan Erenn',
       home: const Directionality(
         textDirection: TextDirection.ltr,
         child: LoginPage(),
