@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "435042458714",
+    "project_id": "girisuygulamasi-283b8",
+    "storage_bucket": "girisuygulamasi-283b8.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:435042458714:android:7162a36a8650c4dfdc0c63",
+        "android_client_info": {
+          "package_name": "com.example.girisyapbackend"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBuvWJhi3BIE6L7IqzGj7e-ZIMHcj5VfEQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
