@@ -1,5 +1,6 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:girisyapbackend/pages/auth/forgot_password.dart';
 import 'package:girisyapbackend/pages/auth/login_page.dart';
 import 'package:girisyapbackend/pages/auth/sign_up.dart';
 import 'package:girisyapbackend/pages/home_page.dart';
@@ -30,6 +31,7 @@ class MyApp extends StatelessWidget {
         "/loginPage": (context) => const LoginPage(),
         "/signUp": (context) => const SignUp(),
         "/homePage": (context) => const HomePage(),
+        "/forgotPassword": (context) => const ForgotPassword(),
       },
     );
   }

@@ -1,6 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:girisyapbackend/widgets/custom_text_button.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -13,6 +12,7 @@ class _LoginPageState extends State<LoginPage> {
   late String email, password;
   final formkey = GlobalKey<FormState>();
   final firebaseauth = FirebaseAuth.instance;
+
   @override
   Widget build(BuildContext context) {
     double height = MediaQuery.of(context).size.height;
@@ -47,15 +47,11 @@ class _LoginPageState extends State<LoginPage> {
                         customSizedBox(),
                         signInButton(),
                         customSizedBox(),
-                        CustomTextButton(
-                          onPressed: () =>
-                              Navigator.pushNamed(context, "/signUp"),
-                          buttonText: "Hesap Oluştur",
-                        ),
-                        CustomTextButton(
-                          onPressed: () {},
-                          buttonText: "Misafir Girişi",
-                        ),
+                        forgotPasswordButton(),
+                        customSizedBox(),
+                        signUpButton(),
+                        customSizedBox(),
+                        signInAnonymousButton(),
                       ],
                     ),
                   ),
@@ -70,59 +66,132 @@ class _LoginPageState extends State<LoginPage> {
 
   Text titleText() {
     return const Text(
-      "Merhaba,\nHoşgeldin!",
+      "Funree Evrenine\n      Giriş Yap!",
       style: TextStyle(
           fontSize: 30, color: Colors.white, fontWeight: FontWeight.bold),
     );
   }
 
-  TextFormField emailTextField() {
-    return TextFormField(
-      validator: (value) {
-        if (value!.isEmpty) {
-          return "Bilgileri Eksiksiz Doldurunuz!";
-        } else {
-          return null;
-        }
-      },
-      onSaved: (value) {
-        email = value!;
-      },
-      style: const TextStyle(color: Colors.white),
-      decoration: customInputDecoration("E-mail"),
+  Container emailTextField() {
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(
+            10.0), // İstediğiniz border radius'u ayarlayın
+        border: Border.all(
+          color: Colors.grey, // İstediğiniz border rengini belirleyin
+          width: 1.0,
+        ),
+      ),
+      child: TextFormField(
+        validator: (value) {
+          if (value!.isEmpty) {
+            return "Bilgileri Eksiksiz Doldurunuz!";
+          } else {
+            return null;
+          }
+        },
+        onSaved: (value) {
+          email = value!;
+        },
+        style: const TextStyle(color: Colors.white),
+        decoration: const InputDecoration(
+          hintText: "E-mail",
+          hintStyle: TextStyle(color: Colors.white),
+          border: InputBorder.none, // Alt çizgiyi kaldırır
+          contentPadding:
+              EdgeInsets.symmetric(horizontal: 20.0, vertical: 15.0),
+        ),
+      ),
     );
   }
 
-  TextFormField passwordTextField() {
-    return TextFormField(
-      validator: (value) {
-        if (value!.isEmpty) {
-          return "Bilgileri Eksiksiz Doldurunuz!";
-        } else {
-          return null;
-        }
-      },
-      onSaved: (value) {
-        password = value!;
-      },
-      obscureText: true,
-      style: TextStyle(color: Colors.white),
-      decoration: customInputDecoration("Şifre"),
+  Container passwordTextField() {
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(
+            10.0), // İstediğiniz border radius'u ayarlayın
+        border: Border.all(
+          color: Colors.grey, // İstediğiniz border rengini belirleyin
+          width: 1.0,
+        ),
+      ),
+      child: TextFormField(
+        validator: (value) {
+          if (value!.isEmpty) {
+            return "Bilgileri Eksiksiz Doldurunuz!";
+          } else {
+            return null;
+          }
+        },
+        onSaved: (value) {
+          password = value!;
+        },
+        obscureText: true,
+        style: TextStyle(color: Colors.white),
+        decoration: InputDecoration(
+          hintText: "Şifre",
+          hintStyle: TextStyle(color: Colors.white),
+          border: InputBorder.none, // Alt çizgiyi kaldırır
+          contentPadding:
+              EdgeInsets.symmetric(horizontal: 20.0, vertical: 15.0),
+        ),
+      ),
     );
   }
 
   Center forgotPasswordButton() {
     return Center(
       child: TextButton(
-        onPressed: () {},
-        child: Text(
+        onPressed: () => Navigator.pushNamed(context, "/forgotPassword"),
+        child: const Text(
           "Şifreni mi Unuttun?",
           style: TextStyle(
-            color: Colors.pink[200],
+            color: Colors.white,
           ),
         ),
       ),
     );
+  }
+
+  Center signUpButton() {
+    return Center(
+      child: TextButton(
+        onPressed: () => Navigator.pushNamed(context, "/signUp"),
+        child: const Text(
+          "Hesap Oluştur",
+          style: TextStyle(
+            color: Colors.white,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Center signInAnonymousButton() {
+    return Center(
+      child: TextButton(
+        onPressed: signInAnonymous,
+        child: const Text(
+          "Misafir Girişi",
+          style: TextStyle(
+            color: Colors.white,
+          ),
+        ),
+      ),
+    );
+  }
+
+  void signInAnonymous() async {
+    try {
+      final result = await firebaseauth.signInAnonymously();
+      if (result.user != null) {
+        Navigator.pushReplacementNamed(context, "/homePage");
+      } else {
+        print("Misafir girişi başarısız oldu.");
+      }
+    } catch (e) {
+      print("Anon error $e");
+    }
   }
 
   Center signInButton() {

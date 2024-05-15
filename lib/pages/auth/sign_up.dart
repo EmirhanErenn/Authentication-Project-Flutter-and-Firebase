@@ -57,45 +57,77 @@ class _SignUpState extends State<SignUp> {
     );
   }
 
-  TextFormField emailTextField() {
-    return TextFormField(
-      validator: (value) {
-        if (value!.isEmpty) {
-          return "Bilgileri Eksiksiz Doldurunuz!";
-        } else {
-          return null;
-        }
-      },
-      onSaved: (value) {
-        email = value!;
-      },
-      style: const TextStyle(color: Colors.white),
-      decoration: customInputDecoration("E-mail"),
+  Container emailTextField() {
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(
+            10.0), // İstediğiniz border radius'u ayarlayın
+        border: Border.all(
+          color: Colors.grey, // İstediğiniz border rengini belirleyin
+          width: 1.0,
+        ),
+      ),
+      child: TextFormField(
+        validator: (value) {
+          if (value!.isEmpty) {
+            return "Bilgileri Eksiksiz Doldurunuz!";
+          } else {
+            return null;
+          }
+        },
+        onSaved: (value) {
+          email = value!;
+        },
+        style: const TextStyle(color: Colors.white),
+        decoration: const InputDecoration(
+          hintText: "E-mail",
+          hintStyle: TextStyle(color: Colors.white),
+          border: InputBorder.none, // Alt çizgiyi kaldırır
+          contentPadding:
+              EdgeInsets.symmetric(horizontal: 20.0, vertical: 15.0),
+        ),
+      ),
     );
   }
 
-  TextFormField passwordTextField() {
-    return TextFormField(
-      validator: (value) {
-        if (value!.isEmpty) {
-          return "Bilgileri Eksiksiz Doldurunuz!";
-        } else {
-          return null;
-        }
-      },
-      onSaved: (value) {
-        password = value!;
-      },
-      obscureText: true,
-      style: TextStyle(color: Colors.white),
-      decoration: customInputDecoration("Şifre"),
+  Container passwordTextField() {
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(
+            10.0), // İstediğiniz border radius'u ayarlayın
+        border: Border.all(
+          color: Colors.grey, // İstediğiniz border rengini belirleyin
+          width: 1.0,
+        ),
+      ),
+      child: TextFormField(
+        validator: (value) {
+          if (value!.isEmpty) {
+            return "Bilgileri Eksiksiz Doldurunuz!";
+          } else {
+            return null;
+          }
+        },
+        onSaved: (value) {
+          password = value!;
+        },
+        obscureText: true,
+        style: TextStyle(color: Colors.white),
+        decoration: const InputDecoration(
+          hintText: "Şifre",
+          hintStyle: TextStyle(color: Colors.white),
+          border: InputBorder.none, // Alt çizgiyi kaldırır
+          contentPadding:
+              EdgeInsets.symmetric(horizontal: 20.0, vertical: 15.0),
+        ),
+      ),
     );
   }
 
   Center signUpButton() {
     return Center(
       child: TextButton(
-        onPressed: signin,
+        onPressed: signUp,
         child: Container(
           height: 50,
           width: 150,
@@ -115,23 +147,95 @@ class _SignUpState extends State<SignUp> {
     );
   }
 
-  void signin() async {
+  Future<String?> signUpHataYakalama(String email, String password) async {
+    String? res;
+    try {
+      final result = await firebaseauth.createUserWithEmailAndPassword(
+          email: email, password: password);
+      res = "success";
+    } on FirebaseAuthException catch (e) {
+      switch (e.code) {
+        case "invalid-email":
+          res = "Lütfen doğru email biçiminde girin";
+          break;
+        case "email-already-in-use":
+          res = "Bu Email Zaten Kullanımda";
+          break;
+        case "weak-password":
+          res = "Lütfen 6 karakter üstünde bir parola giriniz";
+          break;
+        default:
+          res = 'Hata kodu: ${e.code}';
+          break;
+      }
+    }
+    return res;
+  }
+
+  void signUp() async {
     if (formkey.currentState!.validate()) {
       formkey.currentState!.save();
-      try {
-        var userResult = await firebaseauth.createUserWithEmailAndPassword(
-            email: email, password: password);
+      final result = await signUpHataYakalama(email, password);
+      if (result == 'success') {
+        try {
+          Navigator.pushReplacementNamed(context, "/loginPage");
+        } catch (e) {
+          if (e is FirebaseAuthException) {
+            // Eğer email already in use hatası alırsanız, bunu kullanıcıya gösterin
+            if (e.code == 'email-already-in-use') {
+              showDialog(
+                context: context,
+                builder: (context) {
+                  return AlertDialog(
+                    title: const Text('Hata'),
+                    content: const Text('Bu email zaten kullanılıyor.'),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.pop(context),
+                        child: const Text('Geri dön'),
+                      ),
+                    ],
+                  );
+                },
+              );
+            }
+          } else {
+            showDialog(
+              context: context,
+              builder: (context) {
+                return AlertDialog(
+                  title: const Text('Hata'),
+                  content: Text(e.toString()),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(context),
+                      child: const Text('Geri dön'),
+                    ),
+                  ],
+                );
+              },
+            );
+          }
+        }
+      } else {
         formkey.currentState!.reset();
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text("Kayıt Oldun! Giriş Sayfasına Yönlendiriliyorsun!"),
-          ),
+        showDialog(
+          context: context,
+          builder: (context) {
+            return AlertDialog(
+              title: const Text('Hata'),
+              content: Text(result!),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('Geri dön'),
+                ),
+              ],
+            );
+          },
         );
-        Navigator.pushReplacementNamed(context, "/loginPage");
-      } catch (e) {
-        print(e.toString());
       }
-    } else {}
+    }
   }
 
   Center backToLoginPage() {
@@ -159,7 +263,7 @@ class _SignUpState extends State<SignUp> {
 
   Text titleText() {
     return const Text(
-      "Merhaba,\nHoşgeldin!",
+      "       Funree Evrenine\n             Kayıt Ol!",
       style: TextStyle(
           fontSize: 30, color: Colors.white, fontWeight: FontWeight.bold),
     );
