@@ -45,6 +45,7 @@ class _ForgotPasswordState extends State<ForgotPassword> {
                         customSizedBox(),
                         forgotPasswordButton(),
                         customSizedBox(),
+                        customSizedBox(),
                         backToLoginPage(),
                         customSizedBox(),
                       ],
@@ -116,6 +117,7 @@ class _ForgotPasswordState extends State<ForgotPassword> {
           "Şifremi Unuttum",
           style: TextStyle(
             color: Colors.white,
+            fontSize: 16,
           ),
         ),
       ),

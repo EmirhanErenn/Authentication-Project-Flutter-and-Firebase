@@ -290,7 +290,10 @@ class _SignUpState extends State<SignUp> {
           child: const Center(
             child: Text(
               "Hesap Oluştur",
-              style: TextStyle(color: Colors.white),
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 16,
+              ),
             ),
           ),
         ),

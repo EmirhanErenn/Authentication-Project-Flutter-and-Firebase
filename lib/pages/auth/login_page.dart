@@ -37,25 +37,31 @@ class _LoginPageState extends State<LoginPage> {
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: Form(
                   key: formkey,
-                  child: Container(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        titleText(),
-                        customSizedBox(),
-                        emailTextField(),
-                        customSizedBox(),
-                        passwordTextField(),
-                        customSizedBox(),
-                        signInButton(),
-                        customSizedBox(),
-                        forgotPasswordButton(),
-                        customSizedBox(),
-                        signUpButton(),
-                        customSizedBox(),
-                        signInAnonymousButton(),
-                      ],
-                    ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      titleText(),
+                      customSizedBox(),
+                      emailTextField(),
+                      customSizedBox(),
+                      passwordTextField(),
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: forgotPasswordButton(),
+                      ),
+                      signInButton(),
+                      customSizedBox(),
+                      Row(
+                        // Butonları yan yana koymak için Row kullandık
+                        mainAxisAlignment: MainAxisAlignment
+                            .spaceEvenly, // Butonları eşit aralıklarla yerleştirir
+                        children: [
+                          signUpButton(),
+                          signInAnonymousButton(),
+                        ],
+                      ),
+                      customSizedBox(),
+                    ],
                   ),
                 ),
               )
@@ -70,7 +76,7 @@ class _LoginPageState extends State<LoginPage> {
     return const Text(
       "Funree Evrenine\n      Giriş Yap!",
       style: TextStyle(
-          fontSize: 30, color: Colors.white, fontWeight: FontWeight.bold),
+          fontSize: 32, color: Colors.white, fontWeight: FontWeight.bold),
     );
   }
 
@@ -117,38 +123,45 @@ class _LoginPageState extends State<LoginPage> {
           width: 1.0,
         ),
       ),
-      child: TextFormField(
-        validator: (value) {
-          if (value!.isEmpty) {
-            return "Bilgileri Eksiksiz Doldurunuz!";
-          } else {
-            return null;
-          }
-        },
-        onSaved: (value) {
-          password = value!;
-        },
-        obscureText: true,
-        style: TextStyle(color: Colors.white),
-        decoration: InputDecoration(
-          hintText: "Şifre",
-          hintStyle: TextStyle(color: Colors.white),
-          border: InputBorder.none, // Alt çizgiyi kaldırır
-          contentPadding:
-              EdgeInsets.symmetric(horizontal: 20.0, vertical: 15.0),
-        ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          TextFormField(
+            validator: (value) {
+              if (value!.isEmpty) {
+                return "Bilgileri Eksiksiz Doldurunuz!";
+              } else {
+                return null;
+              }
+            },
+            onSaved: (value) {
+              password = value!;
+            },
+            obscureText: true,
+            style: const TextStyle(color: Colors.white),
+            decoration: const InputDecoration(
+              hintText: "Şifre",
+              hintStyle: TextStyle(color: Colors.white),
+              border: InputBorder.none, // Alt çizgiyi kaldırır
+              contentPadding:
+                  EdgeInsets.symmetric(horizontal: 20.0, vertical: 15.0),
+            ),
+          ),
+        ],
       ),
     );
   }
 
-  Center forgotPasswordButton() {
-    return Center(
+  Widget forgotPasswordButton() {
+    return Padding(
+      padding: const EdgeInsets.only(left: 10.0),
       child: TextButton(
         onPressed: () => Navigator.pushNamed(context, "/forgotPassword"),
         child: const Text(
           "Şifreni mi Unuttun?",
           style: TextStyle(
             color: Colors.white,
+            decoration: TextDecoration.underline,
           ),
         ),
       ),
@@ -157,12 +170,24 @@ class _LoginPageState extends State<LoginPage> {
 
   Center signUpButton() {
     return Center(
-      child: TextButton(
-        onPressed: () => Navigator.pushNamed(context, "/signUp"),
-        child: const Text(
-          "Hesap Oluştur",
-          style: TextStyle(
-            color: Colors.white,
+      child: Container(
+        height: 50,
+        width: 150,
+        margin: const EdgeInsets.symmetric(horizontal: 0),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(50),
+          color: const Color(0xff31274F),
+        ),
+        child: TextButton(
+          onPressed: () => Navigator.pushNamed(context, "/signUp"),
+          child: Center(
+            child: const Text(
+              "Hesap Oluştur",
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 16,
+              ),
+            ),
           ),
         ),
       ),
@@ -171,12 +196,24 @@ class _LoginPageState extends State<LoginPage> {
 
   Center signInAnonymousButton() {
     return Center(
-      child: TextButton(
-        onPressed: signInAnonymous,
-        child: const Text(
-          "Misafir Girişi",
-          style: TextStyle(
-            color: Colors.white,
+      child: Container(
+        height: 50,
+        width: 150,
+        margin: const EdgeInsets.symmetric(horizontal: 10),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(50),
+          color: const Color(0xff31274F),
+        ),
+        child: TextButton(
+          onPressed: signInAnonymous,
+          child: const Center(
+            child: Text(
+              "Misafir Girişi",
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 16,
+              ),
+            ),
           ),
         ),
       ),
@@ -202,8 +239,8 @@ class _LoginPageState extends State<LoginPage> {
         onPressed: signIn,
         child: Container(
           height: 50,
-          width: 150,
-          margin: const EdgeInsets.symmetric(horizontal: 60),
+          width: 500,
+          margin: const EdgeInsets.fromLTRB(10, 0, 10, 0),
           decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(50),
               color: const Color(0xff31274F)),
@@ -212,6 +249,7 @@ class _LoginPageState extends State<LoginPage> {
               "Giriş Yap",
               style: TextStyle(
                 color: Colors.white,
+                fontSize: 17,
               ),
             ),
           ),
