@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
@@ -9,9 +10,19 @@ class SignUp extends StatefulWidget {
 }
 
 class _SignUpState extends State<SignUp> {
-  late String email, password;
+  late String email, password, fullName = '', confirmPassword, birthDate = '';
+  late String? selectedSkill = 'Flutter';
   final formkey = GlobalKey<FormState>();
+  final firestore = FirebaseFirestore.instance;
   final firebaseauth = FirebaseAuth.instance;
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _confirmPasswordController =
+      TextEditingController();
+  final TextEditingController _fullNameController = TextEditingController();
+  final TextEditingController _birthDateController = TextEditingController();
+  List<String> skills = ['Flutter', 'C#', 'Web'];
+
   @override
   Widget build(BuildContext context) {
     double height = MediaQuery.of(context).size.height;
@@ -39,9 +50,17 @@ class _SignUpState extends State<SignUp> {
                     children: [
                       titleText(),
                       customSizedBox(),
+                      fullNameTextField(),
+                      customSizedBox(),
                       emailTextField(),
                       customSizedBox(),
                       passwordTextField(),
+                      customSizedBox(),
+                      confirmPasswordTextField(),
+                      customSizedBox(),
+                      birthDateTextField(context),
+                      customSizedBox(),
+                      skillsDropdown(),
                       customSizedBox(),
                       signUpButton(),
                       customSizedBox(),
@@ -58,16 +77,9 @@ class _SignUpState extends State<SignUp> {
   }
 
   Container emailTextField() {
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(
-            10.0), // İstediğiniz border radius'u ayarlayın
-        border: Border.all(
-          color: Colors.grey, // İstediğiniz border rengini belirleyin
-          width: 1.0,
-        ),
-      ),
+    return buildContainer(
       child: TextFormField(
+        controller: _emailController,
         validator: (value) {
           if (value!.isEmpty) {
             return "Bilgileri Eksiksiz Doldurunuz!";
@@ -82,7 +94,7 @@ class _SignUpState extends State<SignUp> {
         decoration: const InputDecoration(
           hintText: "E-mail",
           hintStyle: TextStyle(color: Colors.white),
-          border: InputBorder.none, // Alt çizgiyi kaldırır
+          border: InputBorder.none,
           contentPadding:
               EdgeInsets.symmetric(horizontal: 20.0, vertical: 15.0),
         ),
@@ -91,16 +103,9 @@ class _SignUpState extends State<SignUp> {
   }
 
   Container passwordTextField() {
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(
-            10.0), // İstediğiniz border radius'u ayarlayın
-        border: Border.all(
-          color: Colors.grey, // İstediğiniz border rengini belirleyin
-          width: 1.0,
-        ),
-      ),
+    return buildContainer(
       child: TextFormField(
+        controller: _passwordController,
         validator: (value) {
           if (value!.isEmpty) {
             return "Bilgileri Eksiksiz Doldurunuz!";
@@ -112,15 +117,161 @@ class _SignUpState extends State<SignUp> {
           password = value!;
         },
         obscureText: true,
-        style: TextStyle(color: Colors.white),
+        style: const TextStyle(color: Colors.white),
         decoration: const InputDecoration(
           hintText: "Şifre",
           hintStyle: TextStyle(color: Colors.white),
-          border: InputBorder.none, // Alt çizgiyi kaldırır
+          border: InputBorder.none,
           contentPadding:
               EdgeInsets.symmetric(horizontal: 20.0, vertical: 15.0),
         ),
       ),
+    );
+  }
+
+  Container fullNameTextField() {
+    return buildContainer(
+      child: TextFormField(
+        controller: _fullNameController,
+        validator: (value) {
+          if (value!.isEmpty) {
+            return "Bilgileri Eksiksiz Doldurunuz!";
+          } else {
+            setState(() {
+              fullName = value;
+            });
+            ;
+          }
+        },
+        style: const TextStyle(color: Colors.white),
+        decoration: const InputDecoration(
+          hintText: "Ad Soyad",
+          hintStyle: TextStyle(color: Colors.white),
+          border: InputBorder.none,
+          contentPadding:
+              EdgeInsets.symmetric(horizontal: 20.0, vertical: 15.0),
+        ),
+      ),
+    );
+  }
+
+  Container confirmPasswordTextField() {
+    return buildContainer(
+      child: TextFormField(
+        controller: _confirmPasswordController,
+        validator: (value) {
+          if (value!.isEmpty) {
+            return "Bilgileri Eksiksiz Doldurunuz!";
+          } else if (value != _passwordController.text) {
+            return "Şifreler Uyuşmuyor!";
+          } else {
+            return null;
+          }
+        },
+        obscureText: true,
+        style: const TextStyle(color: Colors.white),
+        decoration: const InputDecoration(
+          hintText: "Şifre Tekrar",
+          hintStyle: TextStyle(color: Colors.white),
+          border: InputBorder.none,
+          contentPadding:
+              EdgeInsets.symmetric(horizontal: 20.0, vertical: 15.0),
+        ),
+      ),
+    );
+  }
+
+  Container birthDateTextField(BuildContext context) {
+    return buildContainer(
+      child: TextFormField(
+        controller: _birthDateController,
+        validator: (value) {
+          if (value!.isEmpty) {
+            return "Bilgileri Eksiksiz Doldurunuz!";
+          } else {
+            setState(
+              () {
+                birthDate = value;
+              },
+            );
+          }
+        },
+        onTap: () async {
+          FocusScope.of(context).requestFocus(FocusNode());
+          DateTime? pickedDate = await showDatePicker(
+            context: context,
+            initialDate: DateTime.now(),
+            firstDate: DateTime(1900),
+            lastDate: DateTime.now(),
+          );
+          if (pickedDate != null) {
+            setState(() {
+              _birthDateController.text =
+                  "${pickedDate.toLocal()}".split(' ')[0];
+            });
+          }
+        },
+        style: const TextStyle(color: Colors.white),
+        decoration: const InputDecoration(
+          hintText: "Doğum Tarihi",
+          hintStyle: TextStyle(color: Colors.white),
+          border: InputBorder.none,
+          contentPadding:
+              EdgeInsets.symmetric(horizontal: 20.0, vertical: 15.0),
+        ),
+      ),
+    );
+  }
+
+  Container skillsDropdown() {
+    return buildContainer(
+      child: Theme(
+        data: Theme.of(context).copyWith(
+          canvasColor: Colors.grey[800], // Dropdown menu background color
+        ),
+        child: DropdownButtonFormField<String>(
+          value: selectedSkill,
+          items: skills.map((String skill) {
+            return DropdownMenuItem<String>(
+              value: skill,
+              child: Text(skill),
+            );
+          }).toList(),
+          onChanged: (value) {
+            setState(() {
+              selectedSkill = value!;
+            });
+          },
+          decoration: const InputDecoration(
+            border: InputBorder.none,
+            contentPadding:
+                EdgeInsets.symmetric(horizontal: 20.0, vertical: 15.0),
+          ),
+          hint: const Text(
+            "Yetenekler",
+            style:
+                TextStyle(color: Colors.white), // Adjust this color if needed
+          ),
+          style: const TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+            fontSize: 16,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Container buildContainer({required Widget child}) {
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(10.0),
+        border: Border.all(
+          color: Colors.grey,
+          width: 1.0,
+        ),
+      ),
+      child: child,
     );
   }
 
@@ -178,44 +329,29 @@ class _SignUpState extends State<SignUp> {
       final result = await signUpHataYakalama(email, password);
       if (result == 'success') {
         try {
+          await firestore.collection('users').add({
+            'fullName': fullName,
+            'email': email,
+            'birthDate': birthDate,
+            'skills': selectedSkill,
+          });
           Navigator.pushReplacementNamed(context, "/loginPage");
         } catch (e) {
-          if (e is FirebaseAuthException) {
-            // Eğer email already in use hatası alırsanız, bunu kullanıcıya gösterin
-            if (e.code == 'email-already-in-use') {
-              showDialog(
-                context: context,
-                builder: (context) {
-                  return AlertDialog(
-                    title: const Text('Hata'),
-                    content: const Text('Bu email zaten kullanılıyor.'),
-                    actions: [
-                      TextButton(
-                        onPressed: () => Navigator.pop(context),
-                        child: const Text('Geri dön'),
-                      ),
-                    ],
-                  );
-                },
+          showDialog(
+            context: context,
+            builder: (context) {
+              return AlertDialog(
+                title: const Text('Hata'),
+                content: Text(e.toString()),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: const Text('Geri dön'),
+                  ),
+                ],
               );
-            }
-          } else {
-            showDialog(
-              context: context,
-              builder: (context) {
-                return AlertDialog(
-                  title: const Text('Hata'),
-                  content: Text(e.toString()),
-                  actions: [
-                    TextButton(
-                      onPressed: () => Navigator.pop(context),
-                      child: const Text('Geri dön'),
-                    ),
-                  ],
-                );
-              },
-            );
-          }
+            },
+          );
         }
       } else {
         formkey.currentState!.reset();
@@ -275,16 +411,18 @@ class _SignUpState extends State<SignUp> {
 
   InputDecoration customInputDecoration(String hintText) {
     return InputDecoration(
-        hintText: hintText,
-        hintStyle: const TextStyle(color: Colors.grey),
-        enabledBorder: const UnderlineInputBorder(
-          borderSide: BorderSide(
-            color: Colors.grey,
-          ),
-        ),
-        focusedBorder: const UnderlineInputBorder(
-            borderSide: BorderSide(
+      hintText: hintText,
+      hintStyle: const TextStyle(color: Colors.grey),
+      enabledBorder: const UnderlineInputBorder(
+        borderSide: BorderSide(
           color: Colors.grey,
-        )));
+        ),
+      ),
+      focusedBorder: const UnderlineInputBorder(
+        borderSide: BorderSide(
+          color: Colors.grey,
+        ),
+      ),
+    );
   }
 }

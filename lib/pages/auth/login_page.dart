@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
@@ -11,6 +12,7 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   late String email, password;
   final formkey = GlobalKey<FormState>();
+  final firestore = FirebaseFirestore.instance;
   final firebaseauth = FirebaseAuth.instance;
 
   @override
