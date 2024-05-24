@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:lottie/lottie.dart';
 
 class SignUp extends StatefulWidget {
   const SignUp({super.key});
@@ -22,56 +23,73 @@ class _SignUpState extends State<SignUp> {
   final TextEditingController _fullNameController = TextEditingController();
   final TextEditingController _birthDateController = TextEditingController();
   List<String> skills = ['Flutter', 'C#', 'Web'];
+  bool _obscureText = true;
+  bool _obscureConfirmText = true;
 
   @override
   Widget build(BuildContext context) {
     double height = MediaQuery.of(context).size.height;
+    final screenSize = MediaQuery.of(context).size;
+
     return Scaffold(
-      backgroundColor: Color(0xff21254A),
-      body: SingleChildScrollView(
-        child: Center(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                height: height * .25,
-                decoration: const BoxDecoration(
-                    image: DecorationImage(
-                  fit: BoxFit.cover,
-                  image: AssetImage("assets/images/topImage.png"),
-                )),
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: Form(
-                  key: formkey,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      titleText(),
-                      customSizedBox(),
-                      fullNameTextField(),
-                      customSizedBox(),
-                      emailTextField(),
-                      customSizedBox(),
-                      passwordTextField(),
-                      customSizedBox(),
-                      confirmPasswordTextField(),
-                      customSizedBox(),
-                      birthDateTextField(context),
-                      customSizedBox(),
-                      skillsDropdown(),
-                      customSizedBox(),
-                      signUpButton(),
-                      customSizedBox(),
-                      backToLoginPage(),
-                    ],
-                  ),
+      backgroundColor: const Color(0xff21254A),
+      body: Stack(
+        children: [
+          // Arka planda animasyon
+          Lottie.asset(
+            'assets/animations/example.json',
+            width: screenSize.width,
+            height: screenSize.height,
+            fit: BoxFit.cover,
+            errorBuilder: (context, error, stackTrace) {
+              return Center(
+                child: Text(
+                  'Animasyon yüklenemedi: $error',
+                  style: TextStyle(color: Colors.red),
                 ),
-              )
-            ],
+              );
+            },
           ),
-        ),
+          // Ön planda içerik
+          SingleChildScrollView(
+            child: Center(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SizedBox(height: height * .25),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    child: Form(
+                      key: formkey,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          titleText(),
+                          customSizedBox(),
+                          fullNameTextField(),
+                          customSizedBox(),
+                          emailTextField(),
+                          customSizedBox(),
+                          passwordTextField(),
+                          customSizedBox(),
+                          confirmPasswordTextField(),
+                          customSizedBox(),
+                          birthDateTextField(context),
+                          customSizedBox(),
+                          skillsDropdown(),
+                          customSizedBox(),
+                          signUpButton(),
+                          customSizedBox(),
+                          backToLoginPage(),
+                        ],
+                      ),
+                    ),
+                  )
+                ],
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -96,7 +114,7 @@ class _SignUpState extends State<SignUp> {
           hintStyle: TextStyle(color: Colors.white),
           border: InputBorder.none,
           contentPadding:
-              EdgeInsets.symmetric(horizontal: 20.0, vertical: 15.0),
+              EdgeInsets.symmetric(horizontal: 20d.0, vertical: 15.0),
         ),
       ),
     );
@@ -116,40 +134,25 @@ class _SignUpState extends State<SignUp> {
         onSaved: (value) {
           password = value!;
         },
-        obscureText: true,
+        obscureText: _obscureText,
         style: const TextStyle(color: Colors.white),
-        decoration: const InputDecoration(
+        decoration: InputDecoration(
           hintText: "Şifre",
           hintStyle: TextStyle(color: Colors.white),
           border: InputBorder.none,
           contentPadding:
               EdgeInsets.symmetric(horizontal: 20.0, vertical: 15.0),
-        ),
-      ),
-    );
-  }
-
-  Container fullNameTextField() {
-    return buildContainer(
-      child: TextFormField(
-        controller: _fullNameController,
-        validator: (value) {
-          if (value!.isEmpty) {
-            return "Bilgileri Eksiksiz Doldurunuz!";
-          } else {
-            setState(() {
-              fullName = value;
-            });
-            ;
-          }
-        },
-        style: const TextStyle(color: Colors.white),
-        decoration: const InputDecoration(
-          hintText: "Ad Soyad",
-          hintStyle: TextStyle(color: Colors.white),
-          border: InputBorder.none,
-          contentPadding:
-              EdgeInsets.symmetric(horizontal: 20.0, vertical: 15.0),
+          suffixIcon: IconButton(
+            icon: Icon(
+              _obscureText ? Icons.visibility : Icons.visibility_off,
+              color: Colors.white,
+            ),
+            onPressed: () {
+              setState(() {
+                _obscureText = !_obscureText;
+              });
+            },
+          ),
         ),
       ),
     );
@@ -168,10 +171,47 @@ class _SignUpState extends State<SignUp> {
             return null;
           }
         },
-        obscureText: true,
+        obscureText: _obscureConfirmText,
+        style: const TextStyle(color: Colors.white),
+        decoration: InputDecoration(
+          hintText: "Şifre Tekrar",
+          hintStyle: TextStyle(color: Colors.white),
+          border: InputBorder.none,
+          contentPadding:
+              EdgeInsets.symmetric(horizontal: 20.0, vertical: 15.0),
+          suffixIcon: IconButton(
+            icon: Icon(
+              _obscureConfirmText ? Icons.visibility : Icons.visibility_off,
+              color: Colors.white,
+            ),
+            onPressed: () {
+              setState(() {
+                _obscureConfirmText = !_obscureConfirmText;
+              });
+            },
+          ),
+        ),
+      ),
+    );
+  }
+
+  Container fullNameTextField() {
+    return buildContainer(
+      child: TextFormField(
+        controller: _fullNameController,
+        validator: (value) {
+          if (value!.isEmpty) {
+            return "Bilgileri Eksiksiz Doldurunuz!";
+          } else {
+            setState(() {
+              fullName = value;
+            });
+            return null;
+          }
+        },
         style: const TextStyle(color: Colors.white),
         decoration: const InputDecoration(
-          hintText: "Şifre Tekrar",
+          hintText: "Ad Soyad",
           hintStyle: TextStyle(color: Colors.white),
           border: InputBorder.none,
           contentPadding:
@@ -189,11 +229,10 @@ class _SignUpState extends State<SignUp> {
           if (value!.isEmpty) {
             return "Bilgileri Eksiksiz Doldurunuz!";
           } else {
-            setState(
-              () {
-                birthDate = value;
-              },
-            );
+            setState(() {
+              birthDate = value;
+            });
+            return null;
           }
         },
         onTap: () async {
@@ -329,17 +368,41 @@ class _SignUpState extends State<SignUp> {
   void signUp() async {
     if (formkey.currentState!.validate()) {
       formkey.currentState!.save();
+      showLoadingDialog(context); // Yükleniyor dialog'unu göster
       final result = await signUpHataYakalama(email, password);
       if (result == 'success') {
         try {
-          await firestore.collection('users').add({
-            'fullName': fullName,
-            'email': email,
-            'birthDate': birthDate,
-            'skills': selectedSkill,
-          });
-          Navigator.pushReplacementNamed(context, "/loginPage");
+          User? user = firebaseauth.currentUser;
+          if (user != null) {
+            await firestore.collection('users').doc(user.uid).set({
+              'fullName': fullName,
+              'email': email,
+              'birthDate': birthDate,
+              'skills': selectedSkill,
+              'uid': user.uid,
+            });
+            hideLoadingDialog(context); // Yükleniyor dialog'unu kapat
+            Navigator.pushReplacementNamed(context, "/homePage");
+          } else {
+            hideLoadingDialog(context); // Yükleniyor dialog'unu kapat
+            showDialog(
+              context: context,
+              builder: (context) {
+                return AlertDialog(
+                  title: const Text('Hata'),
+                  content: const Text('Kullanıcı bilgileri alınamadı.'),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(context),
+                      child: const Text('Geri dön'),
+                    ),
+                  ],
+                );
+              },
+            );
+          }
         } catch (e) {
+          hideLoadingDialog(context); // Yükleniyor dialog'unu kapat
           showDialog(
             context: context,
             builder: (context) {
@@ -357,6 +420,7 @@ class _SignUpState extends State<SignUp> {
           );
         }
       } else {
+        hideLoadingDialog(context); // Yükleniyor dialog'unu kapat
         formkey.currentState!.reset();
         showDialog(
           context: context,
@@ -377,6 +441,30 @@ class _SignUpState extends State<SignUp> {
     }
   }
 
+  void showLoadingDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      barrierDismissible: false, // Dialog dışına tıklayınca kapanmaması için
+      builder: (BuildContext context) {
+        return AlertDialog(
+          content: Row(
+            children: [
+              CircularProgressIndicator(),
+              Container(
+                margin: EdgeInsets.only(left: 10),
+                child: Text("Hesap Oluşturuluyor..."),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  void hideLoadingDialog(BuildContext context) {
+    Navigator.pop(context); // Dialog'u kapatmak için
+  }
+
   Center backToLoginPage() {
     return Center(
       child: TextButton(
@@ -391,8 +479,8 @@ class _SignUpState extends State<SignUp> {
           ),
           child: const Center(
             child: Text(
-              "Giriş Sayfasına Geri Dön",
-              style: TextStyle(color: Colors.white, fontSize: 13),
+              "Giriş Sayfasına Dön",
+              style: TextStyle(color: Colors.white, fontSize: 15),
             ),
           ),
         ),

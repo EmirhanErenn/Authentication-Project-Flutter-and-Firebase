@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:lottie/lottie.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -14,60 +15,74 @@ class _LoginPageState extends State<LoginPage> {
   final formkey = GlobalKey<FormState>();
   final firestore = FirebaseFirestore.instance;
   final firebaseauth = FirebaseAuth.instance;
+  bool _obscureText = true;
 
   @override
   Widget build(BuildContext context) {
     double height = MediaQuery.of(context).size.height;
+    final screenSize = MediaQuery.of(context).size;
+
     return Scaffold(
       backgroundColor: const Color(0xff21254A),
-      body: SingleChildScrollView(
-        child: Center(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                height: height * .25,
-                decoration: const BoxDecoration(
-                    image: DecorationImage(
-                  fit: BoxFit.cover,
-                  image: AssetImage("assets/images/topImage.png"),
-                )),
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: Form(
-                  key: formkey,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      titleText(),
-                      customSizedBox(),
-                      emailTextField(),
-                      customSizedBox(),
-                      passwordTextField(),
-                      Align(
-                        alignment: Alignment.centerLeft,
-                        child: forgotPasswordButton(),
-                      ),
-                      signInButton(),
-                      customSizedBox(),
-                      Row(
-                        // Butonları yan yana koymak için Row kullandık
-                        mainAxisAlignment: MainAxisAlignment
-                            .spaceEvenly, // Butonları eşit aralıklarla yerleştirir
+      body: Stack(
+        children: [
+          // Arka planda animasyon
+          Lottie.asset(
+            'assets/animations/example.json',
+            width: screenSize.width,
+            height: screenSize.height,
+            fit: BoxFit.cover,
+            errorBuilder: (context, error, stackTrace) {
+              return Center(
+                child: Text(
+                  'Animasyon yüklenemedi: $error',
+                  style: TextStyle(color: Colors.red),
+                ),
+              );
+            },
+          ),
+          // Ön planda içerik
+          SingleChildScrollView(
+            child: Center(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SizedBox(height: height * .25),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    child: Form(
+                      key: formkey,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          signUpButton(),
-                          signInAnonymousButton(),
+                          titleText(),
+                          customSizedBox(),
+                          emailTextField(),
+                          customSizedBox(),
+                          passwordTextField(),
+                          Align(
+                            alignment: Alignment.centerLeft,
+                            child: forgotPasswordButton(),
+                          ),
+                          signInButton(),
+                          customSizedBox(),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: [
+                              signUpButton(),
+                              signInAnonymousButton(),
+                            ],
+                          ),
+                          customSizedBox(),
                         ],
                       ),
-                      customSizedBox(),
-                    ],
-                  ),
-                ),
-              )
-            ],
+                    ),
+                  )
+                ],
+              ),
+            ),
           ),
-        ),
+        ],
       ),
     );
   }
@@ -83,10 +98,9 @@ class _LoginPageState extends State<LoginPage> {
   Container emailTextField() {
     return Container(
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(
-            10.0), // İstediğiniz border radius'u ayarlayın
+        borderRadius: BorderRadius.circular(10.0),
         border: Border.all(
-          color: Colors.grey, // İstediğiniz border rengini belirleyin
+          color: Colors.grey,
           width: 1.0,
         ),
       ),
@@ -105,7 +119,7 @@ class _LoginPageState extends State<LoginPage> {
         decoration: const InputDecoration(
           hintText: "E-mail",
           hintStyle: TextStyle(color: Colors.white),
-          border: InputBorder.none, // Alt çizgiyi kaldırır
+          border: InputBorder.none,
           contentPadding:
               EdgeInsets.symmetric(horizontal: 20.0, vertical: 15.0),
         ),
@@ -116,38 +130,43 @@ class _LoginPageState extends State<LoginPage> {
   Container passwordTextField() {
     return Container(
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(
-            10.0), // İstediğiniz border radius'u ayarlayın
+        borderRadius: BorderRadius.circular(10.0),
         border: Border.all(
-          color: Colors.grey, // İstediğiniz border rengini belirleyin
+          color: Colors.grey,
           width: 1.0,
         ),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          TextFormField(
-            validator: (value) {
-              if (value!.isEmpty) {
-                return "Bilgileri Eksiksiz Doldurunuz!";
-              } else {
-                return null;
-              }
-            },
-            onSaved: (value) {
-              password = value!;
-            },
-            obscureText: true,
-            style: const TextStyle(color: Colors.white),
-            decoration: const InputDecoration(
-              hintText: "Şifre",
-              hintStyle: TextStyle(color: Colors.white),
-              border: InputBorder.none, // Alt çizgiyi kaldırır
-              contentPadding:
-                  EdgeInsets.symmetric(horizontal: 20.0, vertical: 15.0),
+      child: TextFormField(
+        validator: (value) {
+          if (value!.isEmpty) {
+            return "Bilgileri Eksiksiz Doldurunuz!";
+          } else {
+            return null;
+          }
+        },
+        onSaved: (value) {
+          password = value!;
+        },
+        obscureText: _obscureText,
+        style: const TextStyle(color: Colors.white),
+        decoration: InputDecoration(
+          hintText: "Şifre",
+          hintStyle: TextStyle(color: Colors.white),
+          border: InputBorder.none,
+          contentPadding:
+              EdgeInsets.symmetric(horizontal: 20.0, vertical: 15.0),
+          suffixIcon: IconButton(
+            icon: Icon(
+              _obscureText ? Icons.visibility : Icons.visibility_off,
+              color: Colors.white,
             ),
+            onPressed: () {
+              setState(() {
+                _obscureText = !_obscureText;
+              });
+            },
           ),
-        ],
+        ),
       ),
     );
   }
@@ -180,8 +199,8 @@ class _LoginPageState extends State<LoginPage> {
         ),
         child: TextButton(
           onPressed: () => Navigator.pushNamed(context, "/signUp"),
-          child: Center(
-            child: const Text(
+          child: const Center(
+            child: Text(
               "Hesap Oluştur",
               style: TextStyle(
                 color: Colors.white,
@@ -242,8 +261,9 @@ class _LoginPageState extends State<LoginPage> {
           width: 500,
           margin: const EdgeInsets.fromLTRB(10, 0, 10, 0),
           decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(50),
-              color: const Color(0xff31274F)),
+            borderRadius: BorderRadius.circular(50),
+            color: const Color(0xff31274F),
+          ),
           child: const Center(
             child: Text(
               "Giriş Yap",
@@ -289,7 +309,9 @@ class _LoginPageState extends State<LoginPage> {
   void signIn() async {
     if (formkey.currentState!.validate()) {
       formkey.currentState!.save();
+      showLoadingDialog();
       final result = await signInHataYakalama(email, password);
+      Navigator.pop(context); // Loading göstergesini kapatır
       if (result == 'success') {
         try {
           final userResult = await firebaseauth.signInWithEmailAndPassword(
@@ -316,6 +338,28 @@ class _LoginPageState extends State<LoginPage> {
             });
       }
     }
+  }
+
+  void showLoadingDialog() {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return const Dialog(
+          child: Padding(
+            padding: EdgeInsets.all(20.0),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                CircularProgressIndicator(),
+                SizedBox(width: 20),
+                Text("Yükleniyor...", style: TextStyle(fontSize: 16)),
+              ],
+            ),
+          ),
+        );
+      },
+    );
   }
 
   Widget customSizedBox() => const SizedBox(

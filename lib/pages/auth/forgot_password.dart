@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:lottie/lottie.dart';
 
 class ForgotPassword extends StatefulWidget {
   const ForgotPassword({super.key});
@@ -10,52 +11,68 @@ class ForgotPassword extends StatefulWidget {
 
 class _ForgotPasswordState extends State<ForgotPassword> {
   late String email = "";
-  late String password = "";
   final formkey = GlobalKey<FormState>();
   final firebaseauth = FirebaseAuth.instance;
+  final TextEditingController _emailController = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     double height = MediaQuery.of(context).size.height;
+    final screenSize = MediaQuery.of(context).size;
+
     return Scaffold(
       backgroundColor: const Color(0xff21254A),
-      body: SingleChildScrollView(
-        child: Center(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                height: height * .25,
-                decoration: const BoxDecoration(
-                    image: DecorationImage(
-                  fit: BoxFit.cover,
-                  image: AssetImage("assets/images/topImage.png"),
-                )),
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: Form(
-                  key: formkey,
-                  child: Container(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        titleText(),
-                        customSizedBox(),
-                        emailTextField(),
-                        customSizedBox(),
-                        forgotPasswordButton(),
-                        customSizedBox(),
-                        customSizedBox(),
-                        backToLoginPage(),
-                        customSizedBox(),
-                      ],
-                    ),
-                  ),
+      body: Stack(
+        children: [
+          // Arka planda animasyon
+          Lottie.asset(
+            'assets/animations/example.json',
+            width: screenSize.width,
+            height: screenSize.height,
+            fit: BoxFit.cover,
+            errorBuilder: (context, error, stackTrace) {
+              return Center(
+                child: Text(
+                  'Animasyon yüklenemedi: $error',
+                  style: TextStyle(color: Colors.red),
                 ),
-              )
-            ],
+              );
+            },
           ),
-        ),
+          // Ön planda içerik
+          SingleChildScrollView(
+            child: Center(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SizedBox(height: height * .25),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    child: Form(
+                      key: formkey,
+                      child: Container(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            titleText(),
+                            customSizedBox(),
+                            emailTextField(),
+                            customSizedBox(),
+                            forgotPasswordButton(),
+                            customSizedBox(),
+                            customSizedBox(),
+                            backToLoginPage(),
+                            customSizedBox(),
+                          ],
+                        ),
+                      ),
+                    ),
+                  )
+                ],
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -67,10 +84,6 @@ class _ForgotPasswordState extends State<ForgotPassword> {
           fontSize: 30, color: Colors.white, fontWeight: FontWeight.bold),
     );
   }
-
-  TextEditingController _emailController = TextEditingController();
-
-  //Araştırılacak
 
   Container emailTextField() {
     return Container(
@@ -142,7 +155,7 @@ class _ForgotPasswordState extends State<ForgotPassword> {
           context: context,
           builder: (context) {
             return const AlertDialog(
-              content: Text('Lütfen email kısmını bos bırakmayınız'),
+              content: Text('Lütfen email kısmını boş bırakmayınız'),
             );
           });
     }
@@ -162,8 +175,8 @@ class _ForgotPasswordState extends State<ForgotPassword> {
           ),
           child: const Center(
             child: Text(
-              "Giriş Sayfasına Geri Dön",
-              style: TextStyle(color: Colors.white, fontSize: 13),
+              "Giriş Sayfasına Dön",
+              style: TextStyle(color: Colors.white, fontSize: 16),
             ),
           ),
         ),

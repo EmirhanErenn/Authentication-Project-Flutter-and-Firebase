@@ -1,7 +1,9 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 class AuthService {
   final firebaseAuth = FirebaseAuth.instance;
+  final _firestore = FirebaseFirestore.instance;
 
   Future signInAnonymous() async {
     try {
@@ -49,5 +51,31 @@ class AuthService {
       }
     }
     return res;
+  }
+
+  // Kullanıcı adını Firestore'dan çekme fonksiyonu
+  Future<String?> getUserFullName(String uid) async {
+    try {
+      DocumentSnapshot doc =
+          await _firestore.collection('users').doc(uid).get();
+      if (doc.exists) {
+        return doc.get('fullName');
+      } else {
+        print("Document does not exist");
+        return null;
+      }
+    } catch (e) {
+      print("Firestore error: $e");
+      return null;
+    }
+  }
+
+  User? getCurrentUser() {
+    return firebaseAuth.currentUser;
+  }
+
+  // Kullanıcı çıkış fonksiyonu
+  Future<void> signOut() async {
+    return await firebaseAuth.signOut();
   }
 }
